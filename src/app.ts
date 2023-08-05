@@ -3,9 +3,17 @@ import morgan from 'morgan'
 import cors from 'cors'
 import config from './config'
 import AppRes from './types/AppRes'
+import routes from './routes'
+import redis from './redis'
 
 // create express server
 const app = express();
+
+// Connect to redis
+(async () => {
+    await redis.connect();
+    console.log('Connected to db')
+})
 
 // Set PORTr
 app.set('port', config.port);
@@ -20,6 +28,9 @@ app.use(morgan('dev'));
 
 // Enable CORS
 app.use(cors(config.corsOptions));
+
+// Route Handlers
+app.use('/', routes);
 
 // 404 Handler
 app.use(function (_, res, next) {
