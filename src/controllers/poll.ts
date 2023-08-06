@@ -1,8 +1,22 @@
 import { NextFunction, Request, Response } from "express";
 import { isEmpty } from "lodash";
 import AppRes from "../types/AppRes";
-import * as pollService from "../services/poll"
+import * as pollService from "../services/poll";
+import * as PollBox from '../models/pollBox';
 
+export const getPollById = async (req: Request, res: Response, next: NextFunction) =>{
+    try{
+        const poll = await pollService.get(req.params.id);
+        const pollBox = await PollBox.get(req.params.id);
+        const response: AppRes = {
+            data: { poll , pollBox},
+            isError: false,
+        };
+        res.send(response);
+    }catch(error){
+        next(error);
+    }
+};
 
 export const createPoll = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -19,8 +33,10 @@ export const createPoll = async (req: Request, res: Response, next: NextFunction
         }
 
         const newPollId = await pollService.create(name, options);
-        const poll = await pollService.get(newPollId)
-        const response: AppRes = { data: { poll }, isError: false }
+        const poll = await pollService.get(newPollId);
+        await PollBox.create(poll);
+        const pollBox = await PollBox.get(newPollId);
+        const response: AppRes = { data: { poll , pollBox }, isError: false }
         res.send(response);
     } catch (error) {
         next(error)
