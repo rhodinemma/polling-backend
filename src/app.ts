@@ -13,7 +13,7 @@ const app = express();
 (async () => {
     await redis.connect();
     console.log('Connected to db')
-})
+})();
 
 // Set PORTr
 app.set('port', config.port);
